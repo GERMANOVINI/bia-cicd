@@ -2,14 +2,20 @@ FROM node:21-slim
 
 WORKDIR /usr/src/app
 
-# Copia apenas manifests para aproveitar cache
+# Copia package.json do servidor primeiro
 COPY package*.json ./
+
+# Instala dependências do servidor
+RUN npm install --loglevel=error
+
+# Cria diretório client e copia seus manifests
+RUN mkdir -p client
 COPY client/package*.json ./client/
 
-RUN npm install --loglevel=error
+# Instala dependências do client
 RUN cd client && npm install --loglevel=error
 
-# Copia o restante
+# Copia o restante do código
 COPY . .
 
 # Variáveis de build
@@ -22,3 +28,4 @@ RUN npm run build --prefix client
 EXPOSE 8080
 
 CMD ["npm", "start"]
+
